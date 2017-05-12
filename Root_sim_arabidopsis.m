@@ -45,18 +45,19 @@ Branch_Inter_Branch_Distances = zeros(nnz(Branching_Rate),Max_Branches,m_max);
 
 BR = zeros(Max_Branches,m_max); % Vector of branching rates for each root (i.e BR(i) is the branching rate for root i)
 
-%Define initial branch
-Branch_Angle(1,:) = 3*pi/2; %Branch angle taken anticlockwise from x axis. 
-Branch_Length(1,:) = 4.38; %Length of initial root
-Branch_Width(1,:) = 0.01; %Initial diameter of root
-Branch_Order(1,:) = 1;
-
-BR(1,:) = Branching_Rate(Branch_Order(1,1));
-
 m = 1;
 while m < m_max + 1
     Time = 0;
     n = 1;
+    
+    %Define initial branch
+    Branch_Angle(1,m) = 3*pi/2; %Branch angle taken anticlockwise from x axis. 
+    Branch_Length(1,m) = 4.38; %Length of initial root
+    Branch_Width(1,m) = 0.01; %Initial diameter of root
+    Branch_Order(1,m) = 1;
+    
+    BR(1,m) = Branching_Rate(Branch_Order(1,1));
+    
     while Time < Time_max
 
         %Find time until next branching event using Gillespie algorithm

@@ -1,4 +1,4 @@
-Iterations_max = 100000;
+Iterations_max = 1000000;
 Iterations = 0;
 hits = 0;
 Branching0 = zeros(1,Iterations_max);
@@ -22,14 +22,15 @@ while Iterations < Iterations_max
     Max_Width = 2; % Maximum width
     Apical_length = 2; %Length of apical zone
     Basal_length = 0; %Length of basal zone
-    Max_Length = 1000;
+    Max_Length = 10000;
 
-    Number_of_Daughters_Data = [9 7 11 12 13 19 15 9 16 12]; %Update data for new time check
-    Length_Data = [15.94554349 13.03006591 13.97050182 14.11069989 16.70318919 18.23718774 15.32863698 14.59489812 16.34310175 13.90157061];
-    epsilon_number = 6;
-    epsilon_length = 6;
+    Number_of_Daughters_Data = [5 4 5 2 7 9 5 5 5 7]; %Update data for new time check
+    Length_Data = [11.396851	10.930791	10.769266	8.930146	12.135492	12.584174	10.40065	10.286557	11.792103	9.9497385];
+    epsilon_number = 5;
+    epsilon_length = 7;
 
-    Time_max = 15;
+    Time_max = 8;
+    Time_max2 = 15;
     Time = 0; %Time counter
     m_max = 10;
 
@@ -37,7 +38,7 @@ while Iterations < Iterations_max
     Branching_Rate = [b 0]; % Vector of branching rates by root order (i.e B(i) is the branching rate for a root of order i)
 
 
-    Max_Branches = ceil(2*Time_max*max(Branching_Rate)); %Maximum number of branches that can be created
+    Max_Branches = ceil(2*Time_max2*max(Branching_Rate)); %Maximum number of branches that can be created
 
     %Preallocate vectors
     Branch_Start_Time = zeros(Max_Branches, m_max);
@@ -68,6 +69,10 @@ while Iterations < Iterations_max
         Branch_Order(1,m) = 1;
 
         BR(1,m) = Branching_Rate(Branch_Order(1,1));
+        
+        Time_max = 8;
+        Number_of_Daughters_Data = [5 4 5 2 7 9 5 5 5 7]; %Update data for new time check
+        Length_Data = [11.396851	10.930791	10.769266	8.930146	12.135492	12.584174	10.40065	10.286557	11.792103	9.9497385];
 
         while Time < Time_max
 
@@ -271,10 +276,21 @@ while Iterations < Iterations_max
 
 
             end
-
+            %Increase simulation time if there is a hit
+            if (Time_max == 8) && (Time > Time_max)
+                     x = abs(Branch_Number_of_Daughters(m)-Number_of_Daughters_Data(m));
+                     y = abs(Branch_Length(m) - Length_Data(m));
+                     if (x < epsilon_number) && (y < epsilon_length)
+                         Time_max = Time_max2;
+                         Number_of_Daughters_Data = [9 7 11 12 13 19 15 9 16 12];
+                         Length_Data = [15.94554349 13.03006591 13.97050182 14.11069989 16.70318919 18.23718774 15.32863698 14.59489812 16.34310175 13.90157061];
+                     end
+            end
         end
         % Only increase m if results fit with data
-        x = abs(Branch_Number_of_Daughters(m)-Number_of_Daughters_Data(m));
+        if (Time_max == 15)
+            
+            x = abs(Branch_Number_of_Daughters(m)-Number_of_Daughters_Data(m));
                     if x < epsilon_number %Check number of branches
 
                         y = abs(Branch_Length(m) - Length_Data(m));
@@ -288,13 +304,15 @@ while Iterations < Iterations_max
                     else
                         m = m_max + 1;
                     end
-
+        else
+            m = m_max+1;
+        end
     end
     
     Iterations = Iterations + 1;   
     
     %Check if iteration was a hit
-    if (nnz(Branch_Length(1,:)) == m_max) % if all possible plants have been simulated
+    if (nnz(Branch_Length(1,:)) == m_max)&& (Time_max == Time_max2) % if all possible plants have been simulated
         hits = hits + 1;
         if uniform == 1
             
